@@ -138,6 +138,33 @@ public class MainActivity extends Activity {
                 new HashMap<String, String>(), new ByteArrayInputStream(new byte[0]));
     }
 
+    /** Приводит статус-бар и панель навигации в тон теме приложения. */
+    private void applyBars(boolean dark) {
+        // Цвета совпадают с --bg из style.css
+        int color = dark ? 0xFF13151A : 0xFFF6F8FC;
+        Window window = getWindow();
+        window.setStatusBarColor(color);
+        window.setNavigationBarColor(color);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            android.view.WindowInsetsController controller = window.getInsetsController();
+            if (controller == null) return;
+            int mask = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                     | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            // Светлый фон требует тёмных значков, тёмный — светлых
+            controller.setSystemBarsAppearance(dark ? 0 : mask, mask);
+        } else {
+            View decor = window.getDecorView();
+            int flags = decor.getSystemUiVisibility();
+            if (dark) {
+                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            } else {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            }
+            decor.setSystemUiVisibility(flags);
+        }
+    }
+
     /** Мост между веб-интерфейсом и Android. */
     private class Bridge {
         @JavascriptInterface
@@ -156,6 +183,16 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 public void run() {
                     Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        /** Цвет системных панелей под текущую тему приложения. */
+        @JavascriptInterface
+        public void setDarkBars(final boolean dark) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    applyBars(dark);
                 }
             });
         }

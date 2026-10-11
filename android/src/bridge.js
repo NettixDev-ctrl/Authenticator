@@ -257,3 +257,22 @@ window.auth = {
 };
 
 window.__describeMigration = describeMigration;
+
+// Цвет системных панелей следит за темой приложения: сама тема переключается
+// в app.js классом body.dark, поэтому наблюдаем за изменением класса.
+if (native && native.setDarkBars && typeof MutationObserver !== 'undefined' &&
+    typeof document !== 'undefined' && document.body && document.body.classList) {
+  const syncBars = () => {
+    try {
+      native.setDarkBars(document.body.classList.contains('dark'));
+    } catch {
+      // Мост недоступен — тема останется прежней, это не критично
+    }
+  };
+  new MutationObserver(syncBars).observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+  syncBars();
+}
+

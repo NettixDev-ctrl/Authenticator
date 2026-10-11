@@ -5,17 +5,29 @@
 /* Строка заголовка не перетаскивается — тянуть окно некуда. */
 .titlebar{-webkit-app-region:no-drag;cursor:default}
 
-/* Отступ под системные панели (жесты/вырез). */
-body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+/* Настольная рамка вокруг body на телефоне выглядит как артефакт. */
+body{border:0}
+
+/* Отступ под системные панели (жесты, вырез). */
+main{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+
+/* Пустой экран: кнопка «Добавить аккаунт» дублирует плавающую кнопку,
+   которая и так висит внизу, и на телефоне уходит под неё. */
+#empty .primary{display:none}
+#empty{padding:18px 0 20px}
+#empty .empty-symbol{width:76px;height:76px;font-size:40px;margin-bottom:20px}
 
 /* На тач-экране элементы делаем крупнее. */
 button.icon{width:44px;height:44px}
 button,.account{min-height:44px}
 
-/* Индикатор прогресса периода на тач-экране мельче не нужен. */
+/* Плавающие кнопки: учитываем системную панель жестов. */
+.actions{bottom:calc(24px + env(safe-area-inset-bottom))}
+
 @media (max-width:520px){
   .titlebar .brand span{font-size:15px}
   .code{font-size:26px;letter-spacing:2px}
+  h1{font-size:28px}
 }
 
 /* На телефоне удобнее одна колонка. */
