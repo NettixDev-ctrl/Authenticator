@@ -1,4 +1,4 @@
-# Maintainer: Authenticator contributors
+# Maintainer: NettixDev
 # Сборка из локального клона репозитория:
 #   cd packaging/arch && makepkg -si
 pkgname=material-authenticator
@@ -6,7 +6,7 @@ pkgver=1.0.0
 pkgrel=1
 pkgdesc="Настольный TOTP-аутентификатор с локальной генерацией кодов (Electron)"
 arch=('x86_64')
-url="https://github.com/USER/REPO"
+url="https://github.com/NettixDev/material-authenticator"
 license=('MIT')
 depends=('gtk3' 'nss' 'libxss' 'libxtst' 'at-spi2-core' 'libcups' 'libdrm' 'mesa' 'alsa-lib'
          'libxcomposite' 'libxdamage' 'libxrandr' 'pango' 'cairo' 'expat')

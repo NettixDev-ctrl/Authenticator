@@ -22,16 +22,16 @@
     "node": ">=22"
   },
   "description": "Настольный TOTP-аутентификатор с локальной генерацией кодов",
-  "author": "Authenticator contributors",
+  "author": "NettixDev",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/USER/REPO.git"
+    "url": "git+https://github.com/NettixDev/material-authenticator.git"
   },
   "bugs": {
-    "url": "https://github.com/USER/REPO/issues"
+    "url": "https://github.com/NettixDev/material-authenticator/issues"
   },
-  "homepage": "https://github.com/USER/REPO#readme",
+  "homepage": "https://github.com/NettixDev/material-authenticator#readme",
   "keywords": [
     "totp",
     "2fa",
