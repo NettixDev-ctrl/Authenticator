@@ -6,7 +6,7 @@ pkgver=1.0.0
 pkgrel=1
 pkgdesc="Настольный TOTP-аутентификатор с локальной генерацией кодов (Electron)"
 arch=('x86_64')
-url="https://github.com/NettixDev/material-authenticator"
+url="https://github.com/NettixDev-ctrl/Authenticator"
 license=('MIT')
 depends=('gtk3' 'nss' 'libxss' 'libxtst' 'at-spi2-core' 'libcups' 'libdrm' 'mesa' 'alsa-lib'
          'libxcomposite' 'libxdamage' 'libxrandr' 'pango' 'cairo' 'expat')

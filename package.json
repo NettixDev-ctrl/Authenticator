@@ -26,12 +26,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NettixDev/material-authenticator.git"
+    "url": "git+https://github.com/NettixDev-ctrl/Authenticator.git"
   },
   "bugs": {
-    "url": "https://github.com/NettixDev/material-authenticator/issues"
+    "url": "https://github.com/NettixDev-ctrl/Authenticator/issues"
   },
-  "homepage": "https://github.com/NettixDev/material-authenticator#readme",
+  "homepage": "https://github.com/NettixDev-ctrl/Authenticator#readme",
   "keywords": [
     "totp",
     "2fa",

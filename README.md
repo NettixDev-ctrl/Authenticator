@@ -77,7 +77,7 @@ makepkg -si
 Требуется **Node.js 22+**.
 
 ```sh
-git clone https://github.com/NettixDev/material-authenticator.git
+git clone https://github.com/NettixDev-ctrl/Authenticator.git
 cd material-authenticator
 npm install
 npm start
