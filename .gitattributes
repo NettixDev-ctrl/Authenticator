@@ -1,0 +1,24 @@
+# Нормализация переводов строк
+* text=auto eol=lf
+
+# Явно текстовые
+*.js   text
+*.cjs  text
+*.json text
+*.md   text
+*.css  text
+*.html text
+*.yml  text
+*.sh   text eol=lf
+
+# Бинарные — не трогать
+*.png  binary
+*.ico  binary
+*.ttf  binary
+*.jpg  binary
+*.zip  binary
+
+# Не показывать диффы в сгенерированных файлах
+package-lock.json  -diff linguist-generated
+dist/**            -diff linguist-generated
+docs/screenshots/** linguist-documentation

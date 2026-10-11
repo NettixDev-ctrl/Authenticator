@@ -1,0 +1,63 @@
+# Maintainer: Authenticator contributors
+# Сборка из локального клона репозитория:
+#   cd packaging/arch && makepkg -si
+pkgname=material-authenticator
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Настольный TOTP-аутентификатор с локальной генерацией кодов (Electron)"
+arch=('x86_64')
+url="https://github.com/USER/REPO"
+license=('MIT')
+depends=('gtk3' 'nss' 'libxss' 'libxtst' 'at-spi2-core' 'libcups' 'libdrm' 'mesa' 'alsa-lib'
+         'libxcomposite' 'libxdamage' 'libxrandr' 'pango' 'cairo' 'expat')
+makedepends=('nodejs' 'npm')
+optdepends=('spectacle: выделение области QR-кода в KDE Plasma')
+options=('!strip' '!debug' '!lto')
+install="${pkgname}.install"
+
+# makepkg запускается в packaging/arch, поэтому корень репозитория — на два уровня выше.
+_reporoot="$startdir/../.."
+_unpacked="$_reporoot/dist/linux-unpacked"
+
+build() {
+  cd "$_reporoot"
+  if [[ -f package-lock.json ]]; then
+    npm ci || npm install
+  else
+    npm install
+  fi
+  npm run build:linux
+}
+
+package() {
+  if [[ ! -d "$_unpacked" ]]; then
+    error "Не найдена сборка $_unpacked — сначала выполните build()."
+    exit 1
+  fi
+
+  install -d "$pkgdir/opt/$pkgname"
+  cp -a "$_unpacked/." "$pkgdir/opt/$pkgname/"
+
+  # Лицензии Electron/Chromium выносим в общий каталог лицензий
+  install -d "$pkgdir/usr/share/licenses/$pkgname"
+  for file in LICENSE.electron.txt LICENSES.chromium.html; do
+    if [[ -f "$pkgdir/opt/$pkgname/$file" ]]; then
+      mv "$pkgdir/opt/$pkgname/$file" "$pkgdir/usr/share/licenses/$pkgname/$file"
+    fi
+  done
+  install -Dm644 "$_reporoot/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+
+  # chrome-sandbox должен быть setuid root, иначе Electron не запустится
+  chmod 4755 "$pkgdir/opt/$pkgname/chrome-sandbox"
+  chown root:root "$pkgdir/opt/$pkgname/chrome-sandbox"
+
+  # Исполняемый файл в PATH
+  install -d "$pkgdir/usr/bin"
+  ln -s "/opt/$pkgname/$pkgname" "$pkgdir/usr/bin/$pkgname"
+
+  # Иконка и ярлык
+  install -Dm644 "$_reporoot/build/icon.png" \
+    "$pkgdir/usr/share/icons/hicolor/512x512/apps/$pkgname.png"
+  install -Dm644 "$startdir/$pkgname.desktop" \
+    "$pkgdir/usr/share/applications/$pkgname.desktop"
+}

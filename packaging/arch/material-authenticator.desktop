@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Authenticator
+GenericName=TOTP Authenticator
+GenericName[ru]=Аутентификатор TOTP
+Comment=Локальная генерация одноразовых кодов (TOTP)
+Comment[en]=Local two-factor authentication code generator
+Exec=material-authenticator %U
+Icon=material-authenticator
+Terminal=false
+Categories=Utility;Security;
+Keywords=2fa;totp;otp;authenticator;коды;двухфакторная;
+StartupNotify=true
+StartupWMClass=material-authenticator

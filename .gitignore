@@ -1,0 +1,50 @@
+# Зависимости
+node_modules/
+jspm_packages/
+
+# Сборка
+dist/
+dist-*/
+out/
+build/Release/
+build/Debug/
+*.AppImage
+*.AppImage.zsync
+*.exe
+*.msi
+*.deb
+*.rpm
+*.pkg.tar.zst
+*.snap
+latest*.yml
+builder-debug.yml
+builder-effective-config.yaml
+
+# Отчёты и кеши
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+.eslintcache
+*.tsbuildinfo
+
+# Секреты и данные приложения — НИКОГДА не коммитить
+accounts.json
+accounts.enc
+accounts.json.tmp
+authenticator-backup.json
+*backup*.json
+
+# Редакторы и ОС
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~

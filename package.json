@@ -1,0 +1,102 @@
+{
+  "name": "material-authenticator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "node launch.cjs",
+    "test": "node --test",
+    "build:linux": "electron-builder --linux AppImage --x64 --publish never",
+    "build:win": "electron-builder --win nsis --x64 --publish never",
+    "build:all": "electron-builder --linux AppImage --win nsis --x64 --publish never"
+  },
+  "dependencies": {
+    "jsqr": "^1.4.0"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "26.0.12"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "description": "Настольный TOTP-аутентификатор с локальной генерацией кодов",
+  "author": "Authenticator contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/USER/REPO.git"
+  },
+  "bugs": {
+    "url": "https://github.com/USER/REPO/issues"
+  },
+  "homepage": "https://github.com/USER/REPO#readme",
+  "keywords": [
+    "totp",
+    "2fa",
+    "otp",
+    "authenticator",
+    "electron",
+    "google-authenticator",
+    "material-design"
+  ],
+  "build": {
+    "appId": "tools.local.materialauthenticator",
+    "productName": "Authenticator",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "capture-preload.cjs",
+      "otp.js",
+      "backup.js",
+      "public/**/*",
+      "package.json",
+      "node_modules/jsqr/**/*"
+    ],
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Utility",
+      "icon": "build/icon.png",
+      "artifactName": "Authenticator-${version}-linux-${arch}.${ext}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false,
+      "artifactName": "Authenticator-${version}-windows-${arch}-setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "npmRebuild": false
+  },
+  "overrides": {
+    "@electron/rebuild": {
+      "@electron/node-gyp": "10.2.0-electron.2"
+    }
+  }
+}
