@@ -1,23 +1,14 @@
-<p align="center">
-  <img src="public/assets/logo.png" width="104" alt="Логотип Authenticator">
-</p>
+# Authenticator
 
-<h1 align="center">Authenticator</h1>
+[![Лицензия](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Платформы](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg)](#установка)
+[![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 
-<p align="center">
-  Настольное приложение для двухэтапной аутентификации: локальная генерация TOTP-кодов,
-  интерфейс в стиле Material Design 3, светлая и тёмная темы.
-  <br>
-  <b>Секретные ключи не покидают вашу машину.</b> Приложение не является продуктом Google.
-</p>
+Настольное приложение для двухэтапной аутентификации: локальная генерация TOTP-кодов,
+интерфейс в стиле Material Design 3, светлая и тёмная темы.
 
-<p align="center">
-  <img alt="Лицензия" src="https://img.shields.io/badge/license-MIT-blue.svg">
-  <img alt="Платформы" src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg">
-  <img alt="Electron" src="https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white">
-  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white">
-  <img alt="Тесты" src="https://img.shields.io/badge/tests-13%20passed-brightgreen.svg">
-</p>
+**Секретные ключи не покидают вашу машину.** Приложение не является продуктом Google.
 
 ---
 
@@ -89,7 +80,7 @@ makepkg -si
 Требуется **Node.js 22+**.
 
 ```sh
-git clone <URL-вашего-репозитория>.git
+git clone https://github.com/USER/REPO.git
 cd Authenticator
 npm install
 npm start
