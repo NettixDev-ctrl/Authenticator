@@ -1,0 +1,11 @@
+{
+  "name": "authenticator-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android-версия Authenticator: WebView-обёртка над общим интерфейсом",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/",
+    "build": "./build.sh"
+  }
+}

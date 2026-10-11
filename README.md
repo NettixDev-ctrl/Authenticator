@@ -1,9 +1,10 @@
 # Authenticator
 
-[![Лицензия](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Платформы](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg)](#установка) [![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/) [![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![Тесты](https://img.shields.io/badge/tests-13%20passed-brightgreen.svg)](#проверка)
+[![Лицензия](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Платформы](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20Android-lightgrey.svg)](#установка) [![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/) [![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![Тесты](https://img.shields.io/badge/tests-22%20passed-brightgreen.svg)](#проверка)
 
-Настольное приложение для двухэтапной аутентификации: локальная генерация TOTP-кодов,
-интерфейс в стиле Material Design 3, светлая и тёмная темы.
+Приложение для двухэтапной аутентификации: локальная генерация TOTP-кодов,
+интерфейс в стиле Material Design 3, светлая и тёмная темы. Работает на Linux,
+Windows и Android — интерфейс и логика общие для всех платформ.
 
 **Секретные ключи не покидают вашу машину.** Приложение не является продуктом Google.
 
@@ -59,6 +60,13 @@
 
 - **Windows** — установщик `Authenticator-1.0.0-windows-x64-setup.exe`.
 
+- **Android** — `Authenticator-1.0.0.apk` (Android 7.0+, WebView). Установка:
+  ```sh
+  adb install -r Authenticator-1.0.0.apk
+  ```
+  Или скопируйте файл на телефон и откройте его. Сборка подписана отладочным
+  ключом, поэтому система предупредит об неизвестном источнике.
+
 Сборки не подписаны, поэтому система может предупредить о неизвестном издателе.
 
 ### Arch Linux
@@ -85,13 +93,38 @@ npm start
 
 Если Electron уже установлен в системе, запуск использует его в отсутствие npm-пакета. Для распознавания QR нужен `jsqr` из `npm install` либо встроенный `BarcodeDetector`, если платформа его поддерживает.
 
+### Android
+
+Electron не поддерживает Android, поэтому мобильная версия — это WebView-обёртка
+над тем же интерфейсом (каталог [`android`](android)). Переиспользуется всё:
+`public/` подключается напрямую, `android/src/otp.js` — тот же TOTP, но на чистом
+JS, так как в WebView нет `node:crypto`.
+
+Требуется **Android SDK** (build-tools 34.0.0, platforms/android-34) и **JDK 17**:
+
+```sh
+sudo pacman -S jdk17-openjdk                       # JDK 17: d8 несовместим с JDK 27
+export ANDROID_HOME="$HOME/android-sdk"            # или свой путь к SDK
+cd android
+./build.sh                                         # → Authenticator-1.0.0.apk
+```
+
+Сборка не требует Gradle: `aapt2` + `javac` + `d8` + `apksigner`. Отладочный ключ
+подписи создаётся автоматически при первой сборке и в репозиторий не попадает.
+
+Отличия мобильной версии: QR снимается камерой (нативный интент вместо захвата
+экрана), коды копируются в системный буфер, резервные копии сохраняются в
+«Загрузки». Управление окном скрыто — на телефоне его нет.
+
 ## Перенос аккаунтов из Google Authenticator
 
 Приложение читает QR-код «Экспорт аккаунтов» из Google Authenticator.
 
 1. В Google Authenticator на телефоне откройте **«Перенос аккаунтов» → «Экспорт аккаунтов»** и выберите аккаунты.
-2. В этом приложении нажмите кнопку **QR** слева от «Добавить код» и выделите появившийся QR-код на экране.
-   На KDE/Wayland используется системное выделение Spectacle (пакет `spectacle`).
+2. В этом приложении нажмите кнопку **QR** слева от «Добавить код»:
+   - на телефоне откроется камера — наведите её на QR-код;
+   - на компьютере выделите QR-код на экране, как в скриншотере: рамка принимается отпусканием мыши, `Esc` отменяет.
+     На KDE/Wayland используется системное выделение Spectacle (пакет `spectacle`).
 3. Аккаунты добавятся списком — названия и параметры подтянутся из кода.
 
 Если аккаунтов много, Google показывает несколько QR-кодов по очереди: отсканируйте каждый, **дубликаты пропустятся автоматически**. Вместо сканирования можно скопировать ссылку `otpauth-migration://` целиком в поле «Секретный ключ» — название при этом вводить не нужно.
@@ -105,10 +138,10 @@ npm start
 | Скопировать код | Нажать на сам код |
 | Поиск | Поле «Поиск аккаунта» |
 | Переименовать / удалить | Кнопки на карточке аккаунта |
-| Сканировать QR с экрана | Кнопка QR слева от «Добавить код» |
+| Сканировать QR | Кнопка QR слева от «Добавить код»: камера на телефоне, выделение области на компьютере |
 | Сменить тему | Кнопка солнца/луны в заголовке или в настройках |
 | Настройки и резервные копии | Кнопка шестерёнки |
-| Отменить выделение области | `Esc` |
+| Отменить выделение области | `Esc` (только на компьютере) |
 
 ## Сборка
 
@@ -124,10 +157,16 @@ electron-builder скачивает инструменты упаковки и E
 ## Проверка
 
 ```sh
-npm test
+npm test                  # настольная версия: 13 тестов
+cd android && npm test    # Android: 9 тестов
 ```
 
 Тесты на встроенном `node:test` покрывают официальные векторы **RFC 6238**, разбор параметров QR, кодирование Base32/Base64, декодирование формата переноса Google Authenticator и отклонение недопустимых параметров (включая HOTP и MD5).
+
+Тесты Android запускают **тот самый скрипт, который лежит внутри APK**: он собирается
+той же склейкой, что и в `build.sh`, и выполняется в окружении с заглушками WebView.
+Проверяются совместимость с API настольной версии, хранение в `localStorage`,
+перенос аккаунтов, экспорт и импорт резервных копий и сохранность данных.
 
 ## Структура проекта
 
@@ -143,6 +182,15 @@ test/                  тесты (otp, backup, migration)
 build/                 иконки приложения
 packaging/arch/        PKGBUILD для Arch Linux
 docs/screenshots/      скриншоты для документации
+android/               сборка для Android
+  build.sh               сборка APK без Gradle
+  MainActivity.java      WebView, камера, буфер обмена, сохранение файлов
+  src/otp.js             TOTP на чистом JS (в WebView нет node:crypto)
+  src/bridge.js          замена preload.cjs: localStorage вместо IPC
+  web/android.css        мобильные правки интерфейса
+  vendor/jsQR.js         распознавание QR (резервная копия для сборки без npm install)
+  res/                   иконки и ресурсы Android
+  test/                  тесты моста
 ```
 
 ## Лицензии третьих сторон

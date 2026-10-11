@@ -60,10 +60,41 @@ jobs:
           path: dist/*.exe
           if-no-files-found: error
 
+  build-android:
+    name: Сборка Android (APK)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # d8 из build-tools 34 падает на классах от JDK 27
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Тесты Android
+        run: npm test
+        working-directory: android
+      - name: Установка компонентов SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-34" "build-tools;34.0.0"
+      - name: Сборка APK
+        run: ./build.sh
+        working-directory: android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android/*.apk
+          if-no-files-found: error
+
   release:
     name: Публикация релиза
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build-linux, build-windows]
+    needs: [build-linux, build-windows, build-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write

@@ -1,0 +1,24 @@
+/* Правки только для Android: окна нет, поэтому управление окном скрыто. */
+
+.window-controls{display:none!important}
+
+/* Строка заголовка не перетаскивается — тянуть окно некуда. */
+.titlebar{-webkit-app-region:no-drag;cursor:default}
+
+/* Отступ под системные панели (жесты/вырез). */
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+
+/* На тач-экране элементы делаем крупнее. */
+button.icon{width:44px;height:44px}
+button,.account{min-height:44px}
+
+/* Индикатор прогресса периода на тач-экране мельче не нужен. */
+@media (max-width:520px){
+  .titlebar .brand span{font-size:15px}
+  .code{font-size:26px;letter-spacing:2px}
+}
+
+/* На телефоне удобнее одна колонка. */
+@media (max-width:600px){
+  .accounts{grid-template-columns:1fr!important}
+}
