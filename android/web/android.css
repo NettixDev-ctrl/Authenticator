@@ -1,15 +1,19 @@
 /* Правки только для Android: окна нет, поэтому управление окном скрыто. */
 
+/* Отступы под системные панели. Значения приходят из MainActivity через
+   window.__applyInsets; env() в WebView всегда 0, поэтому он только запасной. */
+:root{--inset-top:env(safe-area-inset-top,0px);--inset-bottom:env(safe-area-inset-bottom,0px)}
+
 .window-controls{display:none!important}
 
 /* Строка заголовка не перетаскивается — тянуть окно некуда. */
-.titlebar{-webkit-app-region:no-drag;cursor:default}
+.titlebar{-webkit-app-region:no-drag;cursor:default;height:calc(48px + var(--inset-top));padding-top:var(--inset-top)}
 
 /* Настольная рамка вокруг body на телефоне выглядит как артефакт. */
 body{border:0}
 
 /* Отступ под системные панели (жесты, вырез). */
-main{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+main{padding-bottom:calc(150px + var(--inset-bottom))}
 
 /* Пустой экран: кнопка «Добавить аккаунт» дублирует плавающую кнопку,
    которая и так висит внизу, и на телефоне уходит под неё. */
@@ -21,8 +25,15 @@ main{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
 button.icon{width:44px;height:44px}
 button,.account{min-height:44px}
 
+/* Кнопки заголовка: иконка 22px + отступы не должны превышать ширину,
+   иначе внутри кнопки появляется горизонтальная прокрутка. */
+.titlebar .header-tools .icon{width:34px;height:34px;padding:6px}
+
 /* Плавающие кнопки: учитываем системную панель жестов. */
-.actions{bottom:calc(24px + env(safe-area-inset-bottom))}
+.actions{bottom:calc(24px + var(--inset-bottom))}
+
+/* Диалоги не должны уезжать под статус-бар и полосу жестов. */
+dialog{max-height:calc(100vh - var(--inset-top) - var(--inset-bottom) - 24px);overflow:auto}
 
 @media (max-width:520px){
   .titlebar .brand span{font-size:15px}

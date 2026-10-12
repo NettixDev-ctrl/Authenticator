@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -63,17 +65,64 @@ public class MainActivity extends Activity {
     private WebView web;
     private Uri pendingCaptureUri;
     private ValueCallback<Uri[]> pendingFileCallback;
+    private int insetTop = 0;
+    private int insetBottom = 0;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
 
         Window window = getWindow();
-        window.setStatusBarColor(0xFF13151A);
-        window.setNavigationBarColor(0xFF13151A);
+        // Края экрана: контент рисуется под системными панелями, а сами панели
+        // прозрачны, поэтому полоса жестов и статус-бар всегда совпадают по цвету
+        // с фоном приложения. Отступы под панели приходят в CSS через __applyInsets.
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Иначе система рисует полупрозрачный «контрастный» слой поверх
+            // панели навигации — на светлой теме он выглядит как тёмная полоса.
+            window.setNavigationBarContrastEnforced(false);
+            window.setStatusBarContrastEnforced(false);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false);
+        } else {
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        }
 
         web = new WebView(this);
         setContentView(web);
+
+        // Системные панели прозрачны, поэтому отступы под них считаем сами и
+        // отдаём в CSS. Иначе env(safe-area-inset-*) в WebView всегда равен нулю,
+        // и плавающая кнопка уезжает под полосу жестов.
+        web.setOnApplyWindowInsetsListener((view, insets) -> {
+            int top, bottom;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                android.graphics.Insets bars = insets.getInsets(
+                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                // При жестовой навигации панель навигации не занимает места,
+                // но область жестов перекрывает низ экрана — учитываем и её.
+                android.graphics.Insets gestures = insets.getInsets(WindowInsets.Type.systemGestures());
+                top = Math.max(bars.top, gestures.top);
+                bottom = Math.max(bars.bottom, gestures.bottom);
+            } else {
+                top = insets.getSystemWindowInsetTop();
+                bottom = insets.getSystemWindowInsetBottom();
+                if (insets.getDisplayCutout() != null) {
+                    top = Math.max(top, insets.getDisplayCutout().getSafeInsetTop());
+                    bottom = Math.max(bottom, insets.getDisplayCutout().getSafeInsetBottom());
+                }
+            }
+            // Часть прошивок в режиме жестов не сообщает высоту области жестов
+            // (все инсеты снизу равны нулю) — тогда берём её из настроек системы.
+            bottom = Math.max(bottom, gestureNavInset());
+            applyInsets(top, bottom);
+            return insets;
+        });
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -109,6 +158,13 @@ public class MainActivity extends Activity {
                     return notFound();
                 }
             }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                // Отступы могли прийти до загрузки страницы — повторяем, когда
+                // __applyInsets уже определён в bundle.js.
+                sendInsets();
+            }
         });
         web.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -138,13 +194,37 @@ public class MainActivity extends Activity {
                 new HashMap<String, String>(), new ByteArrayInputStream(new byte[0]));
     }
 
-    /** Приводит статус-бар и панель навигации в тон теме приложения. */
+    /** Запоминает отступы под системные панели и перерисовывает их в CSS. */
+    private void applyInsets(int top, int bottom) {
+        insetTop = top;
+        insetBottom = bottom;
+        sendInsets();
+    }
+
+    /** Высота области жестов, если система её не сообщает. 24dp — типовое значение. */
+    private int gestureNavInset() {
+        try {
+            int mode = android.provider.Settings.Secure.getInt(
+                    getContentResolver(), "navigation_mode", 0);
+            if (mode == 2) {
+                return Math.round(24 * getResources().getDisplayMetrics().density);
+            }
+        } catch (Exception ignored) {
+            // Настройка недоступна — оставляем как посчитала система
+        }
+        return 0;
+    }
+
+    private void sendInsets() {
+        callJs("window.__applyInsets&&window.__applyInsets(" + insetTop + "," + insetBottom + ")");
+    }
+
+    /** Красит значки статус-бара и панели навигации под тему приложения. */
     private void applyBars(boolean dark) {
-        // Цвета совпадают с --bg из style.css
-        int color = dark ? 0xFF13151A : 0xFFF6F8FC;
+        // Фон панелей прозрачный: сквозь них видно фон страницы, поэтому он
+        // всегда совпадает с темой. Здесь важны только значки (светлые/тёмные).
+        if (web != null) web.setBackgroundColor(dark ? 0xFF13151A : 0xFFF6F8FC);
         Window window = getWindow();
-        window.setStatusBarColor(color);
-        window.setNavigationBarColor(color);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             android.view.WindowInsetsController controller = window.getInsetsController();
@@ -156,10 +236,12 @@ public class MainActivity extends Activity {
         } else {
             View decor = window.getDecorView();
             int flags = decor.getSystemUiVisibility();
+            int light = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                      | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
             if (dark) {
-                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                flags &= ~light;
             } else {
-                flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                flags |= light;
             }
             decor.setSystemUiVisibility(flags);
         }

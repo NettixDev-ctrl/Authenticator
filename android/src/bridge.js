@@ -7,6 +7,17 @@ import { parseSecret, parseMigration, totp, keyBase32 } from './otp.js';
 const STORAGE_KEY = 'accounts';
 const native = typeof Android !== 'undefined' ? Android : null;
 
+// Отступы под системные панели приходят из MainActivity (в WebView
+// env(safe-area-inset-*) всегда равен нулю). Пишем их в CSS-переменные,
+// которые использует android.css. Нативные инсеты — в физических пикселях,
+// поэтому переводим их в логические (CSS) через devicePixelRatio.
+window.__applyInsets = (top, bottom) => {
+  const dpr = window.devicePixelRatio || 1;
+  const root = document.documentElement;
+  root.style.setProperty('--inset-top', (top || 0) / dpr + 'px');
+  root.style.setProperty('--inset-bottom', (bottom || 0) / dpr + 'px');
+};
+
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -273,6 +284,12 @@ if (native && native.setDarkBars && typeof MutationObserver !== 'undefined' &&
     attributes: true,
     attributeFilter: ['class']
   });
-  syncBars();
+  // До первого кадра body ещё без класса .dark, поэтому берём тему из хранилища,
+  // иначе при тёмной теме успевает мигнуть светлый фон системных панелей.
+  try {
+    native.setDarkBars(localStorage.getItem('theme') === 'dark');
+  } catch {
+    syncBars();
+  }
 }
 
